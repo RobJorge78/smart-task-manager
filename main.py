@@ -1,5 +1,7 @@
 import tkinter as tk
 
+tasks = []
+
 
 def main():
     root = tk.Tk()
@@ -46,14 +48,38 @@ def main():
     )
     separator.pack(pady=20)
 
-    empty_label = tk.Label(
+    tasks_label = tk.Label(
         root,
-        text="(No tasks yet.)",
-        font=("Arial", 14),
-        bg="white",
-        fg="gray"
+        text="Tasks",
+        font=("Arial", 16, "bold"),
+        bg="white"
     )
-    empty_label.pack()
+    tasks_label.pack()
+
+    task_listbox = tk.Listbox(
+        root,
+        width=50,
+        height=10,
+        font=("Arial", 13)
+    )
+    task_listbox.pack(pady=10)
+
+    def add_task():
+        task = task_entry.get().strip()
+
+        if task == "":
+            return
+
+        tasks.append(task)
+
+        task_listbox.insert(tk.END, task)
+
+        task_entry.delete(0, tk.END)
+
+    add_button.config(command=add_task)
+
+    # Allow pressing Enter to add a task
+    task_entry.bind("<Return>", lambda event: add_task())
 
     root.mainloop()
 

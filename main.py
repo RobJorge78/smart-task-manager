@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 tasks = []
 
@@ -7,7 +8,7 @@ def main():
     root = tk.Tk()
 
     root.title("Smart Task Manager")
-    root.geometry("700x500")
+    root.geometry("700x650")
     root.configure(bg="white")
 
     title = tk.Label(
@@ -16,7 +17,7 @@ def main():
         font=("Arial", 24, "bold"),
         bg="white"
     )
-    title.pack(pady=25)
+    title.pack(pady=20)
 
     task_label = tk.Label(
         root,
@@ -38,7 +39,7 @@ def main():
         text="Add Task",
         width=20
     )
-    add_button.pack(pady=15)
+    add_button.pack(pady=10)
 
     separator = tk.Frame(
         root,
@@ -46,7 +47,7 @@ def main():
         width=500,
         bg="gray"
     )
-    separator.pack(pady=20)
+    separator.pack(pady=15)
 
     tasks_label = tk.Label(
         root,
@@ -62,7 +63,7 @@ def main():
         height=10,
         font=("Arial", 13)
     )
-    task_listbox.pack(pady=10)
+    task_listbox.pack(pady=15)
 
     def add_task():
         task = task_entry.get().strip()
@@ -71,15 +72,61 @@ def main():
             return
 
         tasks.append(task)
-
         task_listbox.insert(tk.END, task)
-
         task_entry.delete(0, tk.END)
+
+    def complete_task():
+        selection = task_listbox.curselection()
+
+        if not selection:
+            messagebox.showwarning(
+                "No Selection",
+                "Please select a task."
+            )
+            return
+
+        index = selection[0]
+
+        if not tasks[index].startswith("✔ "):
+            tasks[index] = "✔ " + tasks[index]
+
+            task_listbox.delete(index)
+            task_listbox.insert(index, tasks[index])
+
+    def delete_task():
+        selection = task_listbox.curselection()
+
+        if not selection:
+            messagebox.showwarning(
+                "No Selection",
+                "Please select a task."
+            )
+            return
+
+        index = selection[0]
+
+        del tasks[index]
+        task_listbox.delete(index)
 
     add_button.config(command=add_task)
 
-    # Allow pressing Enter to add a task
     task_entry.bind("<Return>", lambda event: add_task())
+
+    complete_button = tk.Button(
+        root,
+        text="Complete Task",
+        width=20,
+        command=complete_task
+    )
+    complete_button.pack(pady=5)
+
+    delete_button = tk.Button(
+        root,
+        text="Delete Task",
+        width=20,
+        command=delete_task
+    )
+    delete_button.pack(pady=5)
 
     root.mainloop()
 

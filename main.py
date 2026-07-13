@@ -1,12 +1,40 @@
+import json
+import os
 import tkinter as tk
 from tkinter import messagebox
 
+
+DATA_FILE = os.path.join("data", "tasks.json")
 tasks = []
 
 
-def main():
-    root = tk.Tk()
+def load_tasks():
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as file:
+            saved_tasks = json.load(file)
 
+        if isinstance(saved_tasks, list):
+            return saved_tasks
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+
+    return []
+
+
+def save_tasks():
+    os.makedirs("data", exist_ok=True)
+
+    with open(DATA_FILE, "w", encoding="utf-8") as file:
+        json.dump(tasks, file, indent=4)
+
+
+def main():
+    global tasks
+
+    tasks = load_tasks()
+
+    root = tk.Tk()
     root.title("Smart Task Manager")
     root.geometry("700x650")
     root.configure(bg="white")
@@ -65,6 +93,9 @@ def main():
     )
     task_listbox.pack(pady=15)
 
+    for task in tasks:
+        task_listbox.insert(tk.END, task)
+
     def add_task():
         task = task_entry.get().strip()
 
@@ -74,6 +105,8 @@ def main():
         tasks.append(task)
         task_listbox.insert(tk.END, task)
         task_entry.delete(0, tk.END)
+
+        save_tasks()
 
     def complete_task():
         selection = task_listbox.curselection()
@@ -93,6 +126,8 @@ def main():
             task_listbox.delete(index)
             task_listbox.insert(index, tasks[index])
 
+            save_tasks()
+
     def delete_task():
         selection = task_listbox.curselection()
 
@@ -108,8 +143,9 @@ def main():
         del tasks[index]
         task_listbox.delete(index)
 
-    add_button.config(command=add_task)
+        save_tasks()
 
+    add_button.config(command=add_task)
     task_entry.bind("<Return>", lambda event: add_task())
 
     complete_button = tk.Button(

@@ -11,10 +11,10 @@ tasks = []
 def load_tasks():
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as file:
-            saved_tasks = json.load(file)
+            data = json.load(file)
 
-        if isinstance(saved_tasks, list):
-            return saved_tasks
+        if isinstance(data, list):
+            return data
 
     except (FileNotFoundError, json.JSONDecodeError):
         pass
@@ -36,7 +36,7 @@ def main():
 
     root = tk.Tk()
     root.title("Smart Task Manager")
-    root.geometry("700x650")
+    root.geometry("700x850")
     root.configure(bg="white")
 
     title = tk.Label(
@@ -77,6 +77,21 @@ def main():
     )
     separator.pack(pady=15)
 
+    search_label = tk.Label(
+        root,
+        text="Search:",
+        font=("Arial", 14),
+        bg="white"
+    )
+    search_label.pack()
+
+    search_entry = tk.Entry(
+        root,
+        width=40,
+        font=("Arial", 14)
+    )
+    search_entry.pack(pady=10)
+
     tasks_label = tk.Label(
         root,
         text="Tasks",
@@ -93,8 +108,13 @@ def main():
     )
     task_listbox.pack(pady=15)
 
-    for task in tasks:
-        task_listbox.insert(tk.END, task)
+    def refresh_list(task_list):
+        task_listbox.delete(0, tk.END)
+
+        for task in task_list:
+            task_listbox.insert(tk.END, task)
+
+    refresh_list(tasks)
 
     def add_task():
         task = task_entry.get().strip()
@@ -103,10 +123,11 @@ def main():
             return
 
         tasks.append(task)
-        task_listbox.insert(tk.END, task)
-        task_entry.delete(0, tk.END)
 
         save_tasks()
+        refresh_list(tasks)
+
+        task_entry.delete(0, tk.END)
 
     def complete_task():
         selection = task_listbox.curselection()
@@ -118,15 +139,15 @@ def main():
             )
             return
 
-        index = selection[0]
+        displayed_task = task_listbox.get(selection[0])
+
+        index = tasks.index(displayed_task)
 
         if not tasks[index].startswith("✔ "):
             tasks[index] = "✔ " + tasks[index]
 
-            task_listbox.delete(index)
-            task_listbox.insert(index, tasks[index])
-
-            save_tasks()
+        save_tasks()
+        refresh_list(tasks)
 
     def delete_task():
         selection = task_listbox.curselection()
@@ -138,15 +159,52 @@ def main():
             )
             return
 
-        index = selection[0]
+        displayed_task = task_listbox.get(selection[0])
 
-        del tasks[index]
-        task_listbox.delete(index)
+        tasks.remove(displayed_task)
 
         save_tasks()
+        refresh_list(tasks)
+
+    def search_tasks():
+        keyword = search_entry.get().strip().lower()
+
+        if keyword == "":
+            refresh_list(tasks)
+            return
+
+        filtered = []
+
+        for task in tasks:
+            if keyword in task.lower():
+                filtered.append(task)
+
+        refresh_list(filtered)
+
+    def clear_search():
+        search_entry.delete(0, tk.END)
+        refresh_list(tasks)
 
     add_button.config(command=add_task)
+
     task_entry.bind("<Return>", lambda event: add_task())
+    search_entry.bind("<Return>", lambda event: search_tasks())
+
+    search_button = tk.Button(
+        root,
+        text="Search",
+        width=20,
+        command=search_tasks
+    )
+    search_button.pack(pady=5)
+
+    clear_button = tk.Button(
+        root,
+        text="Clear Search",
+        width=20,
+        command=clear_search
+    )
+    clear_button.pack(pady=5)
 
     complete_button = tk.Button(
         root,

@@ -3,7 +3,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 
-
 DATA_FILE = os.path.join("data", "tasks.json")
 tasks = []
 
@@ -36,7 +35,7 @@ def main():
 
     root = tk.Tk()
     root.title("Smart Task Manager")
-    root.geometry("700x850")
+    root.geometry("750x600")
     root.configure(bg="white")
 
     title = tk.Label(
@@ -47,63 +46,63 @@ def main():
     )
     title.pack(pady=20)
 
-    task_label = tk.Label(
-        root,
+    # -------------------------
+    # Task Input Row
+    # -------------------------
+    task_frame = tk.Frame(root, bg="white")
+    task_frame.pack(pady=10)
+
+    tk.Label(
+        task_frame,
         text="Task:",
         font=("Arial", 14),
         bg="white"
-    )
-    task_label.pack()
+    ).pack(side="left", padx=5)
 
     task_entry = tk.Entry(
-        root,
-        width=40,
+        task_frame,
+        width=35,
         font=("Arial", 14)
     )
-    task_entry.pack(pady=10)
+    task_entry.pack(side="left", padx=5)
 
-    add_button = tk.Button(
-        root,
-        text="Add Task",
-        width=20
-    )
-    add_button.pack(pady=10)
+    # -------------------------
+    # Search Row
+    # -------------------------
+    search_frame = tk.Frame(root, bg="white")
+    search_frame.pack(pady=10)
 
-    separator = tk.Frame(
-        root,
-        height=2,
-        width=500,
-        bg="gray"
-    )
-    separator.pack(pady=15)
-
-    search_label = tk.Label(
-        root,
+    tk.Label(
+        search_frame,
         text="Search:",
         font=("Arial", 14),
         bg="white"
-    )
-    search_label.pack()
+    ).pack(side="left", padx=5)
 
     search_entry = tk.Entry(
-        root,
-        width=40,
+        search_frame,
+        width=35,
         font=("Arial", 14)
     )
-    search_entry.pack(pady=10)
+    search_entry.pack(side="left", padx=5)
 
-    tasks_label = tk.Label(
+    # -------------------------
+    # Task List
+    # -------------------------
+    separator = tk.Frame(root, bg="gray", height=2, width=650)
+    separator.pack(pady=15)
+
+    tk.Label(
         root,
         text="Tasks",
         font=("Arial", 16, "bold"),
         bg="white"
-    )
-    tasks_label.pack()
+    ).pack()
 
     task_listbox = tk.Listbox(
         root,
-        width=50,
-        height=10,
+        width=60,
+        height=12,
         font=("Arial", 13)
     )
     task_listbox.pack(pady=15)
@@ -115,6 +114,10 @@ def main():
             task_listbox.insert(tk.END, task)
 
     refresh_list(tasks)
+
+    # -------------------------
+    # Functions
+    # -------------------------
 
     def add_task():
         task = task_entry.get().strip()
@@ -140,7 +143,6 @@ def main():
             return
 
         displayed_task = task_listbox.get(selection[0])
-
         index = tasks.index(displayed_task)
 
         if not tasks[index].startswith("✔ "):
@@ -185,42 +187,58 @@ def main():
         search_entry.delete(0, tk.END)
         refresh_list(tasks)
 
-    add_button.config(command=add_task)
+    # -------------------------
+    # Buttons
+    # -------------------------
+
+    button_frame1 = tk.Frame(root, bg="white")
+    button_frame1.pack(pady=5)
+
+    add_button = tk.Button(
+        button_frame1,
+        text="Add Task",
+        width=15,
+        command=add_task
+    )
+    add_button.pack(side="left", padx=5)
+
+    search_button = tk.Button(
+        button_frame1,
+        text="Search",
+        width=15,
+        command=search_tasks
+    )
+    search_button.pack(side="left", padx=5)
+
+    clear_button = tk.Button(
+        button_frame1,
+        text="Clear Search",
+        width=15,
+        command=clear_search
+    )
+    clear_button.pack(side="left", padx=5)
+
+    button_frame2 = tk.Frame(root, bg="white")
+    button_frame2.pack(pady=10)
+
+    complete_button = tk.Button(
+        button_frame2,
+        text="Complete Task",
+        width=15,
+        command=complete_task
+    )
+    complete_button.pack(side="left", padx=5)
+
+    delete_button = tk.Button(
+        button_frame2,
+        text="Delete Task",
+        width=15,
+        command=delete_task
+    )
+    delete_button.pack(side="left", padx=5)
 
     task_entry.bind("<Return>", lambda event: add_task())
     search_entry.bind("<Return>", lambda event: search_tasks())
-
-    search_button = tk.Button(
-        root,
-        text="Search",
-        width=20,
-        command=search_tasks
-    )
-    search_button.pack(pady=5)
-
-    clear_button = tk.Button(
-        root,
-        text="Clear Search",
-        width=20,
-        command=clear_search
-    )
-    clear_button.pack(pady=5)
-
-    complete_button = tk.Button(
-        root,
-        text="Complete Task",
-        width=20,
-        command=complete_task
-    )
-    complete_button.pack(pady=5)
-
-    delete_button = tk.Button(
-        root,
-        text="Delete Task",
-        width=20,
-        command=delete_task
-    )
-    delete_button.pack(pady=5)
 
     root.mainloop()
 
